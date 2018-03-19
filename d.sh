@@ -91,7 +91,14 @@ done
 
 echo "#################### GO GET ####################"
 for ((i=0;i<${#pkgArr[@]};i++));do
-  go get -v -d "${pkgArr[i]}"
+  if [ "$1" != "u" ];then
+    go get -v -d "${pkgArr[i]}"
+    continue
+  fi
+  
+  if [ -z "${urlArr[i]}" ];then
+    go get -v -d -u "${pkgArr[i]}"
+  fi  
 done
 
 echo "#################### GIT CHECKOUT ####################"
