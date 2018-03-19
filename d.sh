@@ -97,7 +97,13 @@ for ((i=0;i<${#pkgArr[@]};i++));do
   fi
   
   if [ -z "${urlArr[i]}" ];then
+    OLD_PWD=`pwd`
+    cd "$GOPATH/src/${dirArr[i]}"
+    set +e
+    git checkout master
     go get -v -d -u "${pkgArr[i]}"
+    set -e
+    cd $OLD_PWD
   fi  
 done
 
