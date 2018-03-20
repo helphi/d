@@ -111,7 +111,7 @@ for ((i=0;i<${#pkgArr[@]};i++));do
   cd $OLD_PWD
 done
 
-echo -e "\n#################### GOT INSTALL ####################"
+echo -e "\n#################### GO INSTALL ####################"
 for ((i=0;i<${#pkgArr[@]};i++));do
   [ -z "${installArr[i]}" ] && continue
   echo "go install ${pkgArr[i]}"
