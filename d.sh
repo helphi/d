@@ -34,6 +34,10 @@ for line in `grep -v -e '^[[:space:]]*$' "$confPath"`; do
     pkg=("${pkg:1}")
     install=("*")
   fi
+  if [ "-" == "${pkg:0:1}" ];then
+    pkg=("${pkg:1}")
+    install=("-")
+  fi
   pkgArr+=("$pkg")
   installArr+=("$install")
 
@@ -96,6 +100,7 @@ done
 
 echo -e "\n#################### GO GET ####################"
 for ((i=0;i<${#pkgArr[@]};i++));do
+  [ "-" == "${installArr[i]}" ] && continue
   echo ">>> go get -v -d ${pkgArr[i]}"
   go get -v -d "${pkgArr[i]}"
   echo "----------"
@@ -112,9 +117,9 @@ for ((i=0;i<${#pkgArr[@]};i++));do
   cd $OLD_PWD
 done
 
-echo -e "\n#################### GOT INSTALL ####################"
+echo -e "\n#################### GO INSTALL ####################"
 for ((i=0;i<${#pkgArr[@]};i++));do
-  [ -z "${installArr[i]}" ] && continue
+  [ "*" != "${installArr[i]}" ] && continue
   echo "go install ${pkgArr[i]}"
   go install "${pkgArr[i]}"
   echo "----------"
