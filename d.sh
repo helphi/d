@@ -5,6 +5,7 @@ set -e
 : ${GOPATH?"please set GOPATH environment variable first"}
 
 confPath="d.conf"
+mirrorPath="$GOPATH/mirror"
 
 pkgArr=()
 verArr=()
@@ -74,22 +75,22 @@ for ((i=0;i<${#pkgArr[@]};i++));do
   url="${urlArr[i]}"
   dir="${dirArr[i]}"
 
-  mirrorPath="$GOPATH/mirror/$dir.git"
+  mirrorPathTmp="$mirrorPath/$dir.git"
 
-  if [ ! -d "$mirrorPath" ];then
-    echo ">>> clone mirror <$url> to <$mirrorPath>"
-    git clone --mirror "$url" "$mirrorPath"
+  if [ ! -d "$mirrorPathTmp" ];then
+    echo ">>> clone mirror <$url> to <$mirrorPathTmp>"
+    git clone --mirror "$url" "$mirrorPathTmp"
   elif [ "$1" == "u" ];then
-    echo ">>> update mirror <$url> in <$mirrorPath>"
+    echo ">>> update mirror <$url> in <$mirrorPathTmp>"
     OLD_PWD=`pwd`
-    cd $mirrorPath
+    cd $mirrorPathTmp
     git remote update
     cd $OLD_PWD
   fi
   
   rm -rf "$GOPATH/src/$dir"
-  echo ">>> clone $mirrorPath to $GOPATH/src/$dir"
-  git clone -l "$mirrorPath" "$GOPATH/src/$dir"
+  echo ">>> clone $mirrorPathTmp to $GOPATH/src/$dir"
+  git clone -l "$mirrorPathTmp" "$GOPATH/src/$dir"
   echo "----------"
 done
 
