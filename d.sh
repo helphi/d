@@ -95,6 +95,10 @@ for ((i=0;i<${#pkgArr[@]};i++));do
   rm -rf "$GOPATH/src/$dir"
   echo ">>> clone $mirrorPathTmp to $GOPATH/src/$dir"
   git clone -l "$mirrorPathTmp" "$GOPATH/src/$dir"
+  OLD_PWD=`pwd`
+  cd "$GOPATH/src/$dir"
+  git remote set-url origin "$url"
+  cd $OLD_PWD
   echo "----------"
 done
 
