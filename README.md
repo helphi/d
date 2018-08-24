@@ -1,8 +1,12 @@
 # Golang 包依赖管理脚本
 
-通过 Bash 脚本管理 Golang 的包依赖，目前只支持 git。
+通过 Bash 脚本管理 Golang 的包依赖，目前只支持 git。[官方wiki](https://github.com/golang/go/wiki/PackageManagementTools) 中也推荐了很多工具，相比这些工具本脚本不会过多联网，速度快。而其最大的好处就是纯脚本，可以自行根据需要修改。
 
 ## 使用方式
+
+1. 将 `d.sh` 和 `d.conf` 下载到项目根目录
+1. 修改 `d.conf` 配置文件
+1. 然后执行以下指令：
 
 ```sh
 bash d.sh
@@ -38,9 +42,9 @@ chmod +x d.sh
 
 ## 功能说明
 
-本脚本适合在 `$GOPATH\src` 中直接管理包依赖，如果你更喜欢用 go 提供的 `vendor` 机制来管理，可以参考 [官方wiki](https://github.com/golang/go/wiki/PackageManagementTools) 中推荐的工具。
+本脚本默认下载依赖到 `vendor` 目录，也可以通过添加参数 `nv` 直接下载到 `$GOPATH\src`，即 `bash d.sh nv`。
 
-本脚本建议在 `$GOPATH\src` 级别来隔离 app，比如有一个 app1 位于 `$GOPATH\src\app1`，当我们建立 app2 时应该先 `mv $GOPATH\src $GOPATH\src.app1` 然后再 `mkdir $GOPATH\src\app2`，这样可以避免包管理的冲突。
+使用 `nv` 参数的话建议在 `$GOPATH\src` 级别来隔离 app，比如有一个 app1 位于 `$GOPATH\src\app1`，当我们建立 app2 时应该先 `mv $GOPATH\src $GOPATH\src.app1` 然后再 `mkdir $GOPATH\src\app2`，这样可以避免包管理的冲突。
 
 本脚本主要包含以下几个处理过程：
 
@@ -52,13 +56,13 @@ chmod +x d.sh
 
 对于配置了 `URL` 的包会调用 `git clone --mirror` 用镜像的方式先将其缓存到 `$GOPATH\mirror` 中，如果缓存已经存在则会跳过。镜像完成后再用 `git clone` 从本地缓存克隆到 `$GOPATH\src` 中，克隆操作之前都会先删除之前的目录以保持最新。
 
-使用本地镜像缓存是为了让这些缓存可以重用，避免重复下载。如果长时间不更新缓存可能会出现找不到较新版本代码的情况，这时可以调用脚本时添加参数 `u` 更新镜像缓存，即 `./d.sh u`，镜像的更新使用 `git remote update` 实现。
+使用本地镜像缓存是为了让这些缓存可以重用，避免重复下载。如果长时间不更新缓存可能会出现找不到较新版本代码的情况，这时可以调用脚本时添加参数 `u` 更新镜像缓存，即 `bash d.sh u`，镜像的更新使用 `git remote update` 实现。
 
 如果多个 app 之间对于用一个包配置的 URL 不一样，那么镜像缓存中的代码有可能不是我们想要的代码，因为它们的代码源地址都不一样，如果出现这种情况可以将改镜像删除然后重新执行脚本，因此我们应该尽量保持各个 app 的镜像源一致。
 
 ### 用 go get 下载代码
 
-所有的包都会执行一遍 `go get` 指令，但是由于脚本中加了 `-d` 参数所以只会下载不会安装。这样做是为了使用 `go get` 原生的包解析功能下载这个依赖包所依赖的包，因为要用脚本来实现 `go get` 的复杂功能难度太大。
+对所有的包都执行一遍 `go get` 指令，这样做是为了使用 `go get` 原生的包解析功能下载这个依赖包所依赖的包，这个过程没有用脚本实现是因为难度太大。，这个步骤在使用了 `nv` 参数情况下才执行，因为 `go get` 使用的是 `$GOPATH/src` 下面的源码，而不是当前项目的 `vendor` 目录。
 
 ### 设置版本
 
@@ -66,7 +70,7 @@ chmod +x d.sh
 
 ### 安装
 
-对于设置了安装标识的包调用 `go install` 进行安装
+对于设置了安装标识的包调用 `go install` 进行安装，这个步骤也是在使用了 `nv` 参数情况下才执行，因为 `go install` 使用的是 `$GOPATH/src` 下面的源码，而不是当前项目的 `vendor` 目录。
 
 -------------
 
