@@ -2,24 +2,42 @@
 
 set -e
 
+#打印用法
+usage() {
+    echo "用法："
+    echo "  bash d.sh [-h] [-n] [-u] [-f 依赖配置文件]"
+    echo "描述："
+    echo "  -h, 使用帮助"
+    echo "  -n, 不使用 vendor 目录存储依赖包源码，而是存储在 $GOPATH/src 中"
+    echo "  -u, 从远端库更新，默认情况使用本地缓存"
+    echo "  -f, 指定依赖配置文件，默认为 d.conf"
+    exit -1
+}
+
 #GOPATH必须存在
-: ${GOPATH?"please set GOPATH environment variable first"}
+: ${GOPATH?"请先设置 GOPATH 环境变量"}
 
-#解析参数
+#是否使用vendor目录
 noVendor=false
-if [[ "$1" == "nv" || "$2" == "nv" ]];then  
-  noVendor=true
-fi
-echo noVendor=$noVendor
-
+#是否从远端库更新
 update=false
-if [[ "$1" == "u" || "$2" == "u" ]];then
-  update=true
-fi 
-echo update=$update
-
 #依赖的配置文件路径，默认为当前目录下的d.conf
 confPath="d.conf"
+
+while getopts 'hnuf:' arg; do
+    case $arg in
+        n) noVendor=true;;
+        u) update=true;;
+        f) confPath="$arg";;
+        h) usage;;
+        ?) usage;;
+    esac
+done
+
+echo noVendor=$noVendor
+echo update=$update
+echo confPath=$confPath
+
 #代码库镜像地址，用于将下载的代码库缓存下来，避免后面重复下载
 mirrorPath="$GOPATH/mirror"
 

@@ -19,6 +19,8 @@ chmod +x d.sh
 ./d.sh
 ```
 
+> 执行 `bash d.sh -h` 可查看使用帮助
+
 ## 配置文件说明
 
 配置文件需命名为 `d.conf`，其语法说明如下，示例见 [d.conf](d.conf)
@@ -42,9 +44,9 @@ chmod +x d.sh
 
 ## 功能说明
 
-本脚本默认下载依赖到 `vendor` 目录，也可以通过添加参数 `nv` 直接下载到 `$GOPATH\src`，即 `bash d.sh nv`。
+本脚本默认下载依赖到 `vendor` 目录，也可以通过添加参数 `-n` 直接下载到 `$GOPATH\src`，即 `bash d.sh -n`。
 
-使用 `nv` 参数的话建议在 `$GOPATH\src` 级别来隔离 app，比如有一个 app1 位于 `$GOPATH\src\app1`，当我们建立 app2 时应该先 `mv $GOPATH\src $GOPATH\src.app1` 然后再 `mkdir $GOPATH\src\app2`，这样可以避免包管理的冲突。
+使用 `-n` 参数的话建议在 `$GOPATH\src` 级别来隔离 app，比如有一个 app1 位于 `$GOPATH\src\app1`，当我们建立 app2 时应该先 `mv $GOPATH\src $GOPATH\src.app1` 然后再 `mkdir $GOPATH\src\app2`，这样可以避免包管理的冲突。
 
 本脚本主要包含以下几个处理过程：
 
@@ -56,7 +58,7 @@ chmod +x d.sh
 
 对于配置了 `URL` 的包会调用 `git clone --mirror` 用镜像的方式先将其缓存到 `$GOPATH\mirror` 中，如果缓存已经存在则会跳过。镜像完成后再用 `git clone` 从本地缓存克隆到 `$GOPATH\src` 中，克隆操作之前都会先删除之前的目录以保持最新。
 
-使用本地镜像缓存是为了让这些缓存可以重用，避免重复下载。如果长时间不更新缓存可能会出现找不到较新版本代码的情况，这时可以调用脚本时添加参数 `u` 更新镜像缓存，即 `bash d.sh u`，镜像的更新使用 `git remote update` 实现。
+使用本地镜像缓存是为了让这些缓存可以重用，避免重复下载。如果长时间不更新缓存可能会出现找不到较新版本代码的情况，这时可以调用脚本时添加参数 `-u` 更新镜像缓存，即 `bash d.sh -u`，镜像的更新使用 `git remote update` 实现。
 
 如果多个 app 之间对于用一个包配置的 URL 不一样，那么镜像缓存中的代码有可能不是我们想要的代码，因为它们的代码源地址都不一样，如果出现这种情况可以将改镜像删除然后重新执行脚本，因此我们应该尽量保持各个 app 的镜像源一致。
 
