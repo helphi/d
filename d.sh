@@ -210,8 +210,12 @@ for ((i=0;i<${#pkgArr[@]};i++));do
   cd "$toPathTmp"
   echo ">>> git checkout -q ${verArr[i]} in $toPathTmp"
   git checkout -q "${verArr[i]}"
-  #将git相关数据删除
-  rm -rf .git
+
+  #如果使用vendor目录，则将git相关数据删除，避免占用空间
+  if ! $noVendor ;then
+    rm -rf .git
+  fi
+
   echo "----------"
   cd $OLD_PWD
 done
