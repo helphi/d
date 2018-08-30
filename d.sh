@@ -200,12 +200,8 @@ for ((i=0;i<${#pkgArr[@]};i++));do
   [ -z "${verArr[i]}" ] && continue
   OLD_PWD=`pwd`
 
-  #依赖包源码的目的地址，默认在vendor下
-  toPathTmp="vendor/${dirArr[i]}"
-  #如果不使用vendor，就在$GOPATH/src下
-  if $noVendor ;then
-    toPathTmp="$GOPATH/src/${dirArr[i]}"
-  fi
+  #依赖包源码的目的地址，如果不使用vendor，就在$GOPATH/src下，否则就默认在vendor下
+  $noVendor && toPathTmp="$GOPATH/src/${dirArr[i]}" || toPathTmp="vendor/${dirArr[i]}"
 
   cd "$toPathTmp"
   echo ">>> git checkout -q ${verArr[i]} in $toPathTmp"
@@ -220,13 +216,14 @@ for ((i=0;i<${#pkgArr[@]};i++));do
   cd $OLD_PWD
 done
 
-#对于标识符为*的包进行安装，如果要使用vendor，则不执行该操作
-if $noVendor ;then
-  echo -e "\n#################### GO INSTALL ####################"
-  for ((i=0;i<${#pkgArr[@]};i++));do
-    [ "*" != "${installArr[i]}" ] && continue
-    echo "go install ${pkgArr[i]}"
-    go install "${pkgArr[i]}"
-    echo "----------"
-  done
-fi
+#对于标识符为*的包进行安装
+echo -e "\n#################### GO INSTALL ####################"
+for ((i=0;i<${#pkgArr[@]};i++));do
+  [ "*" != "${installArr[i]}" ] && continue
+
+  #依赖包源码的目的地址，默认在vendor下，如果不使用vendor，就在$GOPATH/src下
+  $noVendor && pkgTmp="${pkgArr[i]}" || pkgTmp="./vendor/${pkgArr[i]}"
+  echo "go install $pkgTmp"
+  go install "$pkgTmp"
+  echo "----------"
+done
