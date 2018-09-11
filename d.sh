@@ -196,18 +196,20 @@ fi
 #检出指定的版本
 echo -e "\n#################### GIT CHECKOUT ####################"
 for ((i=0;i<${#pkgArr[@]};i++));do
-  #未指定版本号直接跳过
-  [ -z "${verArr[i]}" ] && continue
   OLD_PWD=`pwd`
 
   #依赖包源码的目的地址，如果不使用vendor，就在$GOPATH/src下，否则就默认在vendor下
   $noVendor && toPathTmp="$GOPATH/src/${dirArr[i]}" || toPathTmp="vendor/${dirArr[i]}"
 
   cd "$toPathTmp"
-  echo ">>> git checkout -q ${verArr[i]} in $toPathTmp"
-  git checkout -q "${verArr[i]}"
 
-  #如果使用vendor目录，则将git相关数据删除，避免占用空间
+  #指定版本号才检出
+  if [ -n "${verArr[i]}" ];then
+    echo ">>> git checkout -q ${verArr[i]} in $toPathTmp"
+    git checkout -q "${verArr[i]}"
+  fi
+
+  #如果使用vendor目录，则将git相关数据删除
   if ! $noVendor ;then
     rm -rf .git
   fi
