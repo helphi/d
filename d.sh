@@ -165,9 +165,9 @@ for ((i=0;i<${#pkgArr[@]};i++));do
   #如果不使用vendor，就往$GOPATH/src中复制
   if $noVendor ;then
     toPathTmp="$GOPATH/src/$dir"
-    #复制代码库的时候先将目的地址中的内容全部删除
-    rm -rf toPathTmp
   fi
+  #复制代码库的时候先将目的地址中的内容全部删除
+  rm -rf $toPathTmp
 
   echo ">>> clone $mirrorPathTmp to $toPathTmp"
   #使用clone的方式复制代码库，以保持git相关数据
