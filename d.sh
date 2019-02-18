@@ -28,7 +28,7 @@ while getopts 'hnuf:' arg; do
     case $arg in
         n) noVendor=true;;
         u) update=true;;
-        f) confPath="$arg";;
+        f) confPath="$OPTARG";;
         h) usage;;
         ?) usage;;
     esac
